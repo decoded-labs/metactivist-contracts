@@ -8,28 +8,41 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract ERC721AMock is ERC721A, Ownable {
-    bytes32 public root;
-    uint256 public immutable PRICE = 0.05 ether;
+    bytes32 public rootActivist;
+    bytes32 public rootReserve;
+    uint256 public immutable ACTIVIST_PRICE = 0.05 ether;
+    uint256 public immutable PUBLIC_PRICE = 0.07 ether;
     uint256 public immutable PRESALE_DATE = 1650639600;
     uint256 public immutable PUBLIC_DATE = 1650697200;
     uint256 public immutable END_DATE = 1650718800;
     uint256 public immutable MAX_PER_WALLET = 5;
+    uint256 public immutable MAX_AMOUNT = 789;
 
     mapping(address => uint256) public totalClaimed;
+    mapping(address => uint256) public totalActivistMint;
 
-    constructor() ERC721A("MetActivists", "MetActivists") {}
+    constructor() ERC721A("METActivists", "METActivists") {}
 
     function reserveClaim(
         address account,
         uint256 amount,
         bytes32[] calldata proof
     ) external {
-        require(
-            _verify(_leaf(account, amount), proof),
-            "Invalid merkle proof"
-        );
+        require(_verify(_leaf(account, amount), rootReserve, proof),"Invalid merkle proof");
         for (uint i; i < amount; i++){
             _safeMint(account, i);
+        }
+        totalClaimed[msg.sender] += amount;
+    }
+
+    // states: 0="Presale", 1="Public sale", 2="Sale over"
+    function getState () public view returns(uint256 state) {
+        if(block.timestamp > END_DATE) {
+            state = 2;
+        } else if (block.timestamp < END_DATE && block.timestamp > PUBLIC_DATE) {
+            state = 1;
+        } else if (block.timestamp < PUBLIC_DATE && block.timestamp > PRESALE_DATE) {
+            state = 0;
         }
     }
 
@@ -39,20 +52,21 @@ contract ERC721AMock is ERC721A, Ownable {
         bytes32[] calldata proof
     ) external payable{
         require(
-            _verify(_leaf(account, amount), proof),
+            _verify(_leaf(account, amount), rootActivist, proof),
             "Invalid merkle proof"
         );
-        require(msg.value == (amount * PRICE), "Not correct amount.");
+        require(msg.value == (amount * ACTIVIST_PRICE), "Not correct amount.");
         for (uint i; i < amount; i++){
             _safeMint(account, totalMinted()+i);
         }
-        totalClaimed[msg.sender] += amount;
+        totalActivistMint[msg.sender] += amount;
     }
 
     function publicMint(uint256 _amount) external payable {
-        require(totalClaimed[msg.sender] + _amount < MAX_PER_WALLET)
+        require(_amount < MAX_PER_WALLET);
+        
 
-    };
+    }
 
     function _leaf(address _account, uint256 _tokenId)
         internal
@@ -62,20 +76,20 @@ contract ERC721AMock is ERC721A, Ownable {
         return keccak256(abi.encodePacked(_tokenId, _account));
     }
 
-    function _verify(bytes32 _leaf, bytes32[] memory _proof)
+    function _verify(bytes32 leaf, bytes32 _root, bytes32[] memory _proof)
         internal
-        view
+        pure
         returns (bool)
     {
-        return MerkleProof.verify(_proof, root, _leaf);
+        return MerkleProof.verify(_proof, _root, leaf);
     }
 
     function setActivistRoot(bytes32 _root) external onlyOwner {
-        root = _root;
+        rootActivist = _root;
     }
 
     function setReserveRoot(bytes32 _root) external onlyOwner {
-        root = _root;
+        rootReserve = _root;
     }
 
 
