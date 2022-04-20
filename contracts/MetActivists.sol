@@ -3,40 +3,48 @@
 
 pragma solidity ^0.8.4;
 
-import './ERC721A.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
+import "./ERC721A.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract ERC721AMock is ERC721A, Ownable {
-
     bytes32 public root;
 
-    constructor(string memory name_, string memory symbol_) ERC721A(name_, symbol_) {}
+    constructor(string memory name_, string memory symbol_)
+        ERC721A(name_, symbol_)
+    {}
 
-    function redeem(address account, uint256 tokenId, bytes32[] calldata proof)
-    external
-    {
-        require(_verify(_leaf(account, tokenId), proof), "Invalid merkle proof");
+    function redeem(
+        address account,
+        uint256 tokenId,
+        bytes32[] calldata proof
+    ) external {
+        require(
+            _verify(_leaf(account, tokenId), proof),
+            "Invalid merkle proof"
+        );
         _safeMint(account, tokenId);
     }
 
     function _leaf(address account, uint256 tokenId)
-    internal pure returns (bytes32)
+        internal
+        pure
+        returns (bytes32)
     {
         return keccak256(abi.encodePacked(tokenId, account));
     }
 
     function _verify(bytes32 leaf, bytes32[] memory proof)
-    internal view returns (bool)
+        internal
+        view
+        returns (bool)
     {
         return MerkleProof.verify(proof, root, leaf);
     }
 
-        function setRoot (bytes32 _root) external onlyOwner {
+    function setRoot(bytes32 _root) external onlyOwner {
         root = _root;
     }
-
-    
 
     function numberMinted(address owner) public view returns (uint256) {
         return _numberMinted(owner);
@@ -66,7 +74,11 @@ contract ERC721AMock is ERC721A, Ownable {
         _safeMint(to, quantity);
     }
 
-    function safeMint(address to, uint256 quantity, bytes memory _data) public {
+    function safeMint(
+        address to,
+        uint256 quantity,
+        bytes memory _data
+    ) public {
         _safeMint(to, quantity, _data);
     }
 
