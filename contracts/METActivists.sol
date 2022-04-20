@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Creators: Chiru Labs
-
 pragma solidity ^0.8.4;
 
 import "./ERC721A.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-contract ERC721AMock is ERC721A, Ownable {
+contract METActivists is ERC721A, Ownable {
 
     bytes32 public rootActivist;
     bytes32 public rootReserve;
@@ -69,8 +67,7 @@ contract ERC721AMock is ERC721A, Ownable {
 
     function publicMint(uint256 _amount) external payable {
         require(_amount < MAX_PER_WALLET);
-
-
+        // fill
     }
 
     function _leaf(address _account, uint256 _tokenId)
