@@ -9,7 +9,8 @@ import '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
 
 contract ERC721AMock is ERC721A, Ownable {
 
-    bytes32 public root;
+    bytes32 public rootActivist;
+    bytes32 public rootReserve;
 
     constructor(string memory name_, string memory symbol_) ERC721A(name_, symbol_) {}
 
@@ -32,11 +33,13 @@ contract ERC721AMock is ERC721A, Ownable {
         return MerkleProof.verify(proof, root, leaf);
     }
 
-        function setRoot (bytes32 _root) external onlyOwner {
-        root = _root;
+    function setActivistRoot (bytes32 _root) external onlyOwner {
+        rootActivist = _root;
     }
 
-    
+    function setReserveRoot (bytes32 _root) external onlyOwner {
+        rootReserve = _root;
+    }
 
     function numberMinted(address owner) public view returns (uint256) {
         return _numberMinted(owner);
