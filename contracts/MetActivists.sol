@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract ERC721AMock is ERC721A, Ownable {
+
     bytes32 public rootActivist;
     bytes32 public rootReserve;
     uint256 public immutable ACTIVIST_PRICE = 0.05 ether;
@@ -17,9 +18,13 @@ contract ERC721AMock is ERC721A, Ownable {
     uint256 public immutable END_DATE = 1650718800;
     uint256 public immutable MAX_PER_WALLET = 5;
     uint256 public immutable MAX_AMOUNT = 789;
+    address public immutable PROXY_REGISTRY = 0x1E525EEAF261cA41b809884CBDE9DD9E1619573A;
 
     mapping(address => uint256) public totalClaimed;
     mapping(address => uint256) public totalActivistMint;
+
+    string public baseURI_;
+    bool public revealed = false;
 
     constructor() ERC721A("METActivists", "METActivists") {}
 
@@ -64,7 +69,7 @@ contract ERC721AMock is ERC721A, Ownable {
 
     function publicMint(uint256 _amount) external payable {
         require(_amount < MAX_PER_WALLET);
-        
+
 
     }
 
@@ -109,31 +114,33 @@ contract ERC721AMock is ERC721A, Ownable {
         _setAux(_owner, _aux);
     }
 
-    function baseURI() public view returns (string memory) {
-        return _baseURI();
+    function _baseURI() internal view virtual override returns (string memory) {
+        return baseURI_;
     }
 
+    function setBaseURI (string memory __baseURI) external onlyOwner {
+        require(revealed == false, "It's been revealed already.");
+        baseURI_ = __baseURI;
+        revealed = true;
+    }
+
+    
     function exists(uint256 _tokenId) public view returns (bool) {
         return _exists(_tokenId);
-    }
-
-    function safeMint(address _to, uint256 _quantity) public {
-        _safeMint(_to, _quantity);
-    }
-
-    function safeMint(
-        address _to,
-        uint256 _quantity,
-        bytes memory _data
-    ) public {
-        _safeMint(_to, _quantity, _data);
-    }
-
-    function mint(address _to, uint256 _quantity) public {
-        _mint(_to, _quantity);
     }
 
     function burn(uint256 _tokenId, bool _approvalCheck) public {
         _burn(_tokenId, _approvalCheck);
     }
+
+    function isApprovedForAll(address _owner, address operator) public view override returns (bool) {
+        OpenSeaProxyRegistry proxyRegistry = OpenSeaProxyRegistry(PROXY_REGISTRY);
+        if (address(proxyRegistry.proxies(_owner)) == operator) return true;
+        return super.isApprovedForAll(_owner, operator);
+    }
+}
+
+contract OwnableDelegateProxy { }
+contract OpenSeaProxyRegistry {
+    mapping(address => OwnableDelegateProxy) public proxies;
 }
