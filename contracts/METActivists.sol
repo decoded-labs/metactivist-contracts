@@ -11,9 +11,9 @@ contract METActivists is ERC721A, Ownable {
     bytes32 public rootReserve;
     uint256 public immutable ACTIVIST_PRICE = 0.05 ether;
     uint256 public immutable PUBLIC_PRICE = 0.07 ether;
-    uint256 public immutable PRESALE_DATE = 1650639600;
-    uint256 public immutable PUBLIC_DATE = 1650697200;
-    uint256 public immutable END_DATE = 1650718800;
+    uint256 public immutable PRESALE_DATE = 1650621600;
+    uint256 public immutable PUBLIC_DATE = 1650622800;
+    uint256 public immutable END_DATE = 1650624000;
     uint256 public immutable MAX_PER_WALLET = 5;
     uint256 public immutable MAX_AMOUNT = 789;
     uint256 public immutable SOFT_CAP = 700;
@@ -28,7 +28,7 @@ contract METActivists is ERC721A, Ownable {
     bool public teamClaims = false;
     uint256 public revenue;
 
-    string public baseURI_ = "https://gateway.pinata.cloud/ipfs/QmakkM1At3uxQgkUZa8xtaTkAX76nLQQbPgjJu8QZkCL2v";
+    string public baseURI_ = "https://takezo.mypinata.cloud/ipfs/QmNNnm91yHdm16bhdkuiTDmsmByWyt2MkFmyCLjvPeT5Uy";
     bool public revealed = false;
 
     constructor() ERC721A("METActivists", "METActivists") {
@@ -101,7 +101,7 @@ contract METActivists is ERC721A, Ownable {
     }
 
     function publicMint(uint256 _amount) external payable {
-        require(_amount < MAX_PER_WALLET, "Only 5 per tx");
+        require(_amount <= MAX_PER_WALLET, "Only 5 per tx");
         require(msg.value == (_amount * PUBLIC_PRICE), "Wrong amount");
         require(getState() == 1, "Not my tempo");
         _safeMint(msg.sender, _amount);
