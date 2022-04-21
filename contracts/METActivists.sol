@@ -25,6 +25,8 @@ contract METActivists is ERC721A, Ownable {
 
     // 10000%
     mapping(address => uint256) public contributions;
+    bool public teamClaims = false;
+    uint256 public revenue;
 
     string public baseURI_ = "https://gateway.pinata.cloud/ipfs/QmakkM1At3uxQgkUZa8xtaTkAX76nLQQbPgjJu8QZkCL2v";
     bool public revealed = false;
@@ -47,8 +49,12 @@ contract METActivists is ERC721A, Ownable {
     }
 
     function claimContribution () external {
-        uint256 balance = address(this).balance;
-        uint256 amount = contributions[msg.sender] * balance / 10000;
+        require(getState() == 2, "Sale is not over");
+        if (teamClaims == false) {
+            teamClaims = true;
+            revenue = address(this).balance;
+        }
+        uint256 amount = contributions[msg.sender] * revenue / 10000;
         (bool sent, ) = payable(msg.sender).call{value: amount}("");
         require(sent, "Failed to send Ether");
     }
