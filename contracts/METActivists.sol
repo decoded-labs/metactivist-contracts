@@ -50,23 +50,26 @@ contract METActivists is ERC721A, Ownable {
     }
 
     function activistMint(
-        uint256 amount,
-        bytes32[] calldata proof
+        uint256 _amount,
+        bytes32[] calldata _proof
     ) external payable{
-        require(_verify(_leaf(msg.sender, amount), rootActivist, proof),"Invalid merkle proof");
-        require(msg.value == (amount * ACTIVIST_PRICE), "Not correct amount.");
-        uint256 desired = totalMinted() + amount;
+        require(_verify(_leaf(msg.sender, _amount), rootActivist, _proof),"Invalid merkle proof");
+        require(msg.value == (_amount * ACTIVIST_PRICE), "Wrong amount.");
+        uint256 desired = totalMinted() + _amount;
         uint256 threshold = SOFT_CAP + totalClaimed; 
         require(desired < threshold,"Can't grab reserved assets");
-        for (uint i; i < amount; i++){
+        for (uint i; i < _amount; i++){
             _safeMint(msg.sender, totalMinted()+i);
         }
-        totalActivistMint[msg.sender] += amount;
+        totalActivistMint[msg.sender] += _amount;
     }
 
     function publicMint(uint256 _amount) external payable {
-        require(_amount < MAX_PER_WALLET);
-        // fill
+        require(_amount < MAX_PER_WALLET, "Only 5 per tx");
+        require(msg.value == (_amount * PUBLIC_PRICE), "Wrong amount");
+        for (uint i; i < _amount; i++){
+            _safeMint(msg.sender, totalMinted()+i);
+        }
     }
 
     function _leaf(address _account, uint256 _tokenId)
