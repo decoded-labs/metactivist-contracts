@@ -39,15 +39,13 @@ contract METActivists is ERC721A, Ownable {
     }
 
     function reserveClaim(
-        uint256 amount,
-        bytes32[] calldata proof
+        uint256 _amount,
+        bytes32[] calldata _proof
     ) external {
-        require(_verify(_leaf(msg.sender, amount), rootReserve, proof),"Invalid merkle proof");
+        require(_verify(_leaf(msg.sender, _amount), rootReserve, _proof),"Invalid merkle proof");
         require(getState() == 0, "Not my tempo");
-        for (uint i; i < amount; i++){
-            _safeMint(msg.sender, i);
-        }
-        totalClaimed += amount;
+        _safeMint(msg.sender, _amount);
+        totalClaimed += _amount;
     }
 
     function activistMint(
@@ -60,9 +58,7 @@ contract METActivists is ERC721A, Ownable {
         uint256 desired = totalMinted() + _amount;
         uint256 threshold = SOFT_CAP + totalClaimed; 
         require(desired < threshold,"Can't grab reserved assets");
-        for (uint i; i < _amount; i++){
-            _safeMint(msg.sender, totalMinted()+i);
-        }
+        _safeMint(msg.sender, _amount);
         totalActivistMint[msg.sender] += _amount;
     }
 
@@ -70,9 +66,8 @@ contract METActivists is ERC721A, Ownable {
         require(_amount < MAX_PER_WALLET, "Only 5 per tx");
         require(msg.value == (_amount * PUBLIC_PRICE), "Wrong amount");
         require(getState() == 1, "Not my tempo");
-        for (uint i; i < _amount; i++){
-            _safeMint(msg.sender, totalMinted()+i);
-        }
+        _safeMint(msg.sender, _amount);
+        
     }
 
     function _leaf(address _account, uint256 _tokenId)
