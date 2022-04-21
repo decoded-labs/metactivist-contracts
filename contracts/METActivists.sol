@@ -55,6 +55,9 @@ contract METActivists is ERC721A, Ownable {
             revenue = address(this).balance;
         }
         uint256 amount = contributions[msg.sender] * revenue / 10000;
+        if (amount > address(this).balance){
+            amount = address(this).balance;
+        }
         (bool sent, ) = payable(msg.sender).call{value: amount}("");
         require(sent, "Failed to send Ether");
     }
