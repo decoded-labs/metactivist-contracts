@@ -43,6 +43,7 @@ contract METActivists is ERC721A, Ownable {
         bytes32[] calldata proof
     ) external {
         require(_verify(_leaf(msg.sender, amount), rootReserve, proof),"Invalid merkle proof");
+        require(getState() == 0, "Not my tempo");
         for (uint i; i < amount; i++){
             _safeMint(msg.sender, i);
         }
@@ -55,6 +56,7 @@ contract METActivists is ERC721A, Ownable {
     ) external payable{
         require(_verify(_leaf(msg.sender, _amount), rootActivist, _proof),"Invalid merkle proof");
         require(msg.value == (_amount * ACTIVIST_PRICE), "Wrong amount.");
+        require(getState() == 0, "Not my tempo");
         uint256 desired = totalMinted() + _amount;
         uint256 threshold = SOFT_CAP + totalClaimed; 
         require(desired < threshold,"Can't grab reserved assets");
@@ -67,6 +69,7 @@ contract METActivists is ERC721A, Ownable {
     function publicMint(uint256 _amount) external payable {
         require(_amount < MAX_PER_WALLET, "Only 5 per tx");
         require(msg.value == (_amount * PUBLIC_PRICE), "Wrong amount");
+        require(getState() == 1, "Not my tempo");
         for (uint i; i < _amount; i++){
             _safeMint(msg.sender, totalMinted()+i);
         }
