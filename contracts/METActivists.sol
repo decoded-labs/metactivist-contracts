@@ -23,13 +23,34 @@ contract METActivists is ERC721A, Ownable {
     mapping(address => uint256) public reserveClaims;
     mapping(address => uint256) public totalActivistMint;
 
+    // 10000%
+    mapping(address => uint256) public contributions;
+
     string public baseURI_ = "https://gateway.pinata.cloud/ipfs/QmakkM1At3uxQgkUZa8xtaTkAX76nLQQbPgjJu8QZkCL2v";
     bool public revealed = false;
 
-    constructor() ERC721A("METActivists", "METActivists") {}
+    constructor() ERC721A("METActivists", "METActivists") {
+        contributions[0xEF5CFFE3878b855513BdC88D84D88e7726ad6908] = 1300;
+        contributions[0xCD5D7d2fBeb627452fD44C353DaaA6f06fafA789] = 1300;
+        contributions[0x4D8142a1Afd7623998BA0e54238Dda420c68aF07] = 1300;
+        contributions[0x71E9E4535d3Df49501A27e67f1Ff2DC0C36644B8] = 1500;
+        contributions[0xa17FEf307070bE6e1Ef2de34A2ee110932475aB0] = 550;
+        contributions[0x731ec7d7D7578CF3Bd304F7a4c49643DEc31731e] = 150;
+        contributions[0xf5a5cf6eaD5BBf4f03f3F3779d0F6c1a0d841211] = 150;
+        contributions[0xc4e9ac4D7D95aA101cA8A0EabEAd26069A5dE88A] = 50;
+        contributions[0xAbeb2d7bf8FA01a0883fe3b8c6849aff42B075B9] = 1500;
+        contributions[0xe90d55fD687cE6C3601053aF4065eE5bAD4bECF7] = 1750;
+    }
 
     function _startTokenId() internal view virtual override returns (uint256) {
         return 1;
+    }
+
+    function claimContribution () external {
+        uint256 balance = address(this).balance;
+        uint256 amount = contributions[msg.sender] * balance / 10000;
+        (bool sent, ) = payable(msg.sender).call{value: amount}("");
+        require(sent, "Failed to send Ether");
     }
 
     // states: 0="Presale", 1="Public sale", 2="Sale over"
