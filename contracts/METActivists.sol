@@ -20,6 +20,7 @@ contract METActivists is ERC721A, Ownable {
     address public immutable PROXY_REGISTRY = 0x1E525EEAF261cA41b809884CBDE9DD9E1619573A;
 
     uint256 public totalClaimed;
+    mapping(address => uint256) public reserveClaims;
     mapping(address => uint256) public totalActivistMint;
 
     string public baseURI_ = "https://gateway.pinata.cloud/ipfs/QmakkM1At3uxQgkUZa8xtaTkAX76nLQQbPgjJu8QZkCL2v";
@@ -48,7 +49,9 @@ contract METActivists is ERC721A, Ownable {
     ) external {
         require(_verify(_leaf(msg.sender, _amount), rootReserve, _proof),"Invalid merkle proof");
         require(getState() == 0, "Not my tempo");
+        require(_amount + reserveClaims[msg.sender] < MAX_PER_WALLET, "Exceeds max allowed");
         _safeMint(msg.sender, _amount);
+        reserveClaims[msg.sender] += _amount;
         totalClaimed += _amount;
     }
 
@@ -59,6 +62,7 @@ contract METActivists is ERC721A, Ownable {
         require(_verify(_leaf(msg.sender, _amount), rootActivist, _proof),"Invalid merkle proof");
         require(msg.value == (_amount * ACTIVIST_PRICE), "Wrong amount.");
         require(getState() == 0, "Not my tempo");
+        require(_amount + totalActivistMint[msg.sender] < MAX_PER_WALLET, "Exceeds max allowed");
         uint256 desired = totalMinted() + _amount;
         uint256 threshold = SOFT_CAP + totalClaimed; 
         require(desired < threshold,"Can't grab reserved assets");
@@ -71,7 +75,6 @@ contract METActivists is ERC721A, Ownable {
         require(msg.value == (_amount * PUBLIC_PRICE), "Wrong amount");
         require(getState() == 1, "Not my tempo");
         _safeMint(msg.sender, _amount);
-        
     }
 
     function _leaf(address _account, uint256 _tokenId)
