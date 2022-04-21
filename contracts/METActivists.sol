@@ -27,6 +27,10 @@ contract METActivists is ERC721A, Ownable {
 
     constructor() ERC721A("METActivists", "METActivists") {}
 
+    function _startTokenId() internal view virtual override returns (uint256) {
+        return 1;
+    }
+
     // states: 0="Presale", 1="Public sale", 2="Sale over"
     function getState () public view returns(uint256 state) {
         if(block.timestamp > END_DATE) {
