@@ -115,6 +115,15 @@ contract METActivists is ERC721A, Ownable {
         return baseURI_;
     }
 
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        if (revealed == false){
+            return baseURI_;
+        } else {
+            return super.tokenURI(tokenId);
+        }
+    }
+
+
     function reveal (string memory __baseURI) external onlyOwner {
         require(revealed == false, "It's been revealed already.");
         baseURI_ = __baseURI;
