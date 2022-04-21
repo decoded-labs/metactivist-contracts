@@ -49,7 +49,7 @@ contract METActivists is ERC721A, Ownable {
     }
 
     function claimContribution () external {
-        require(getState() == 2, "Sale is not over");
+        require(getState() == 3, "Sale is not over");
         if (teamClaims == false) {
             teamClaims = true;
             revenue = address(this).balance;
@@ -62,13 +62,15 @@ contract METActivists is ERC721A, Ownable {
         require(sent, "Failed to send Ether");
     }
 
-    // states: 0="Presale", 1="Public sale", 2="Sale over"
+    // states: 0="Not started", 1="Presale", 2="Public sale", 3="Sale over"
     function getState () public view returns(uint256 state) {
         if(block.timestamp > END_DATE) {
-            state = 2;
+            state = 3;
         } else if (block.timestamp < END_DATE && block.timestamp > PUBLIC_DATE) {
-            state = 1;
+            state = 2;
         } else if (block.timestamp < PUBLIC_DATE && block.timestamp > PRESALE_DATE) {
+            state = 1;
+        } else if (block.timestamp < PRESALE_DATE) {
             state = 0;
         }
     }
@@ -78,7 +80,7 @@ contract METActivists is ERC721A, Ownable {
         bytes32[] calldata _proof
     ) external {
         require(_verify(_leaf(msg.sender, _amount), rootReserve, _proof),"Invalid merkle proof");
-        require(getState() == 0, "Not my tempo");
+        require(getState() == 1, "Not my tempo");
         require(_amount + reserveClaims[msg.sender] < MAX_PER_WALLET, "Exceeds max allowed");
         reserveClaims[msg.sender] += _amount;
         totalClaimed += _amount;
@@ -91,7 +93,7 @@ contract METActivists is ERC721A, Ownable {
     ) external payable{
         require(_verify(_activistLeaf(msg.sender), rootActivist, _proof),"Invalid merkle proof");
         require(msg.value == (_amount * ACTIVIST_PRICE), "Wrong amount.");
-        require(getState() == 0, "Not my tempo");
+        require(getState() == 1, "Not my tempo");
         require(_amount + totalActivistMint[msg.sender] < MAX_PER_WALLET, "Exceeds max allowed");
         uint256 desired = totalMinted() + _amount;
         uint256 threshold = SOFT_CAP + totalClaimed; 
@@ -103,7 +105,7 @@ contract METActivists is ERC721A, Ownable {
     function publicMint(uint256 _amount) external payable {
         require(_amount <= MAX_PER_WALLET, "Only 5 per tx");
         require(msg.value == (_amount * PUBLIC_PRICE), "Wrong amount");
-        require(getState() == 1, "Not my tempo");
+        require(getState() == 2, "Not my tempo");
         _safeMint(msg.sender, _amount);
     }
 
