@@ -16,27 +16,16 @@ contract METActivists is ERC721A, Ownable {
     uint256 public immutable END_DATE = 1650718800;
     uint256 public immutable MAX_PER_WALLET = 5;
     uint256 public immutable MAX_AMOUNT = 789;
+    uint256 public immutable SOFT_CAP = 700;
     address public immutable PROXY_REGISTRY = 0x1E525EEAF261cA41b809884CBDE9DD9E1619573A;
 
-    mapping(address => uint256) public totalClaimed;
+    uint256 public totalClaimed;
     mapping(address => uint256) public totalActivistMint;
 
     string public baseURI_;
     bool public revealed = false;
 
     constructor() ERC721A("METActivists", "METActivists") {}
-
-    function reserveClaim(
-        address account,
-        uint256 amount,
-        bytes32[] calldata proof
-    ) external {
-        require(_verify(_leaf(account, amount), rootReserve, proof),"Invalid merkle proof");
-        for (uint i; i < amount; i++){
-            _safeMint(account, i);
-        }
-        totalClaimed[msg.sender] += amount;
-    }
 
     // states: 0="Presale", 1="Public sale", 2="Sale over"
     function getState () public view returns(uint256 state) {
@@ -49,18 +38,28 @@ contract METActivists is ERC721A, Ownable {
         }
     }
 
+    function reserveClaim(
+        uint256 amount,
+        bytes32[] calldata proof
+    ) external {
+        require(_verify(_leaf(msg.sender, amount), rootReserve, proof),"Invalid merkle proof");
+        for (uint i; i < amount; i++){
+            _safeMint(msg.sender, i);
+        }
+        totalClaimed += amount;
+    }
+
     function activistMint(
-        address account,
         uint256 amount,
         bytes32[] calldata proof
     ) external payable{
-        require(
-            _verify(_leaf(account, amount), rootActivist, proof),
-            "Invalid merkle proof"
-        );
+        require(_verify(_leaf(msg.sender, amount), rootActivist, proof),"Invalid merkle proof");
         require(msg.value == (amount * ACTIVIST_PRICE), "Not correct amount.");
+        uint256 desired = totalMinted() + amount;
+        uint256 threshold = SOFT_CAP + totalClaimed; 
+        require(desired < threshold,"Can't grab reserved assets");
         for (uint i; i < amount; i++){
-            _safeMint(account, totalMinted()+i);
+            _safeMint(msg.sender, totalMinted()+i);
         }
         totalActivistMint[msg.sender] += amount;
     }
