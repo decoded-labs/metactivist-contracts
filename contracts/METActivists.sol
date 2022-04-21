@@ -22,7 +22,7 @@ contract METActivists is ERC721A, Ownable {
     uint256 public totalClaimed;
     mapping(address => uint256) public totalActivistMint;
 
-    string public baseURI_;
+    string public baseURI_ = "https://gateway.pinata.cloud/ipfs/QmakkM1At3uxQgkUZa8xtaTkAX76nLQQbPgjJu8QZkCL2v";
     bool public revealed = false;
 
     constructor() ERC721A("METActivists", "METActivists") {}
@@ -115,7 +115,7 @@ contract METActivists is ERC721A, Ownable {
         return baseURI_;
     }
 
-    function setBaseURI (string memory __baseURI) external onlyOwner {
+    function reveal (string memory __baseURI) external onlyOwner {
         require(revealed == false, "It's been revealed already.");
         baseURI_ = __baseURI;
         revealed = true;
