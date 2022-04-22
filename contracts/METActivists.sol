@@ -119,7 +119,7 @@ contract METActivists is ERC721A, Ownable {
         pure
         returns (bytes32)
     {
-        return keccak256(abi.encodePacked(_amount, _account));
+        return keccak256(abi.encodePacked(_account, _amount));
     }
 
     function _activistLeaf(address _account) internal pure returns (bytes32) {
