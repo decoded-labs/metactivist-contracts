@@ -14,6 +14,7 @@ contract MOctivists is ERC721A, Ownable {
     uint256 public immutable PUBLIC_DATE = 1650622800;
     uint256 public immutable END_DATE = 1650624000;
     uint256 public immutable MAX_PER_WALLET = 5;
+    uint256 public immutable MAX_PER_TX = 10;
     uint256 public immutable MAX_AMOUNT = 789;
     uint256 public immutable SOFT_CAP = 700;
     address public immutable PROXY_REGISTRY =
@@ -99,6 +100,7 @@ contract MOctivists is ERC721A, Ownable {
         require(msg.value == (_amount * ACTIVIST_PRICE), "Wrong amount.");
         require(getState() == 1, "Not my tempo");
         require(_amount + totalActivistMint[msg.sender] <= MAX_PER_WALLET, "Exceeds max allowed");
+        require(_amount + totalMinted() <= MAX_AMOUNT, "Exceeds max amount");
         uint256 desired = totalMinted() + _amount;
         uint256 threshold = SOFT_CAP + totalClaimed;
         require(desired <= threshold, "Can't grab reserved assets");
@@ -107,7 +109,7 @@ contract MOctivists is ERC721A, Ownable {
     }
 
     function publicMint(uint256 _amount) external payable {
-        require(_amount <= MAX_PER_WALLET, "Only 5 per tx");
+        require(_amount <= MAX_PER_TX, "Only 10 per tx");
         require(_amount + totalMinted() <= MAX_AMOUNT, "Exceeds max amount");
         require(msg.value == (_amount * PUBLIC_PRICE), "Wrong amount");
         require(getState() == 2, "Not my tempo");

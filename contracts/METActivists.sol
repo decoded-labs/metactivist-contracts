@@ -14,6 +14,7 @@ contract METActivists is ERC721A, Ownable {
     uint256 public immutable PUBLIC_DATE = 1650697200;
     uint256 public immutable END_DATE = 1650718800;
     uint256 public immutable MAX_PER_WALLET = 5;
+    uint256 public immutable MAX_PER_TX = 10;
     uint256 public immutable MAX_AMOUNT = 789;
     uint256 public immutable SOFT_CAP = 700;
     address public immutable PROXY_REGISTRY =
@@ -77,11 +78,12 @@ contract METActivists is ERC721A, Ownable {
 
     function reserveClaim(
         uint256 _amount,
+        uint256 _total,
         bytes32[] calldata _proof
     ) external {
-        require(_verify(_leaf(msg.sender, _amount), rootReserve, _proof),"Invalid merkle proof");
+        require(_verify(_leaf(msg.sender, _total), rootReserve, _proof),"Invalid merkle proof");
         require(getState() == 1, "Not my tempo");
-        require(_amount + reserveClaims[msg.sender] < MAX_PER_WALLET, "Exceeds max allowed");
+        require(_amount + reserveClaims[msg.sender] <= _total, "Exceeds max allowed");
         reserveClaims[msg.sender] += _amount;
         totalClaimed += _amount;
         _safeMint(msg.sender, _amount);
@@ -97,7 +99,7 @@ contract METActivists is ERC721A, Ownable {
         );
         require(msg.value == (_amount * ACTIVIST_PRICE), "Wrong amount.");
         require(getState() == 1, "Not my tempo");
-        require(_amount + totalActivistMint[msg.sender] < MAX_PER_WALLET, "Exceeds max allowed");
+        require(_amount + totalActivistMint[msg.sender] <= MAX_PER_WALLET, "Exceeds max allowed");
         require(_amount + totalMinted() <= MAX_AMOUNT, "Exceeds max amount");
         uint256 desired = totalMinted() + _amount;
         uint256 threshold = SOFT_CAP + totalClaimed;
@@ -107,7 +109,7 @@ contract METActivists is ERC721A, Ownable {
     }
 
     function publicMint(uint256 _amount) external payable {
-        require(_amount <= MAX_PER_WALLET, "Only 5 per tx");
+        require(_amount <= MAX_PER_TX, "Only 10 per tx");
         require(_amount + totalMinted() <= MAX_AMOUNT, "Exceeds max amount");
         require(msg.value == (_amount * PUBLIC_PRICE), "Wrong amount");
         require(getState() == 2, "Not my tempo");
