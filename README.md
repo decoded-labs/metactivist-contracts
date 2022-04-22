@@ -1,15 +1,3 @@
-# Basic Sample Hardhat Project
+# METActivists Contracts Repo
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
-```
+The METActivists are a group of funny and colorful individuals running around on the blockchain. Behind these artistic beautiful looking individuals lies a deeper message regarding small and big world concerns. With their signs, they aim to make a statement in a positive and effective form.
