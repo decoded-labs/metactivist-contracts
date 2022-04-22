@@ -98,7 +98,6 @@ contract METActivists is ERC721A, Ownable {
         require(msg.value == (_amount * ACTIVIST_PRICE), "Wrong amount.");
         require(getState() == 1, "Not my tempo");
         require(_amount + totalActivistMint[msg.sender] < MAX_PER_WALLET, "Exceeds max allowed");
-        require(_amount + totalMinted() <= MAX_AMOUNT, "Exceeds max amount");
         uint256 desired = totalMinted() + _amount;
         uint256 threshold = SOFT_CAP + totalClaimed;
         require(desired <= threshold, "Can't grab reserved assets");
@@ -108,7 +107,6 @@ contract METActivists is ERC721A, Ownable {
 
     function publicMint(uint256 _amount) external payable {
         require(_amount <= MAX_PER_WALLET, "Only 5 per tx");
-        require(_amount + totalMinted() <= MAX_AMOUNT, "Exceeds max amount");
         require(msg.value == (_amount * PUBLIC_PRICE), "Wrong amount");
         require(getState() == 2, "Not my tempo");
         _safeMint(msg.sender, _amount);
@@ -149,7 +147,6 @@ contract METActivists is ERC721A, Ownable {
     function totalMinted() public view returns (uint256) {
         return _totalMinted();
     }
-
 
     function _baseURI() internal view virtual override returns (string memory) {
         return baseURI_;
