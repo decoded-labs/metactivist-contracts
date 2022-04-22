@@ -10,14 +10,14 @@ contract METActivists is ERC721A, Ownable {
     bytes32 public rootReserve;
     uint256 public immutable ACTIVIST_PRICE = 0.05 ether;
     uint256 public immutable PUBLIC_PRICE = 0.07 ether;
-    uint256 public immutable PRESALE_DATE = 1650621600;
-    uint256 public immutable PUBLIC_DATE = 1650622800;
-    uint256 public immutable END_DATE = 1650624000;
+    uint256 public immutable PRESALE_DATE = 1650639600;
+    uint256 public immutable PUBLIC_DATE = 1650697200;
+    uint256 public immutable END_DATE = 1650718800;
     uint256 public immutable MAX_PER_WALLET = 5;
     uint256 public immutable MAX_AMOUNT = 789;
     uint256 public immutable SOFT_CAP = 700;
     address public immutable PROXY_REGISTRY =
-        0x1E525EEAF261cA41b809884CBDE9DD9E1619573A;
+        0xa5409ec958C83C3f309868babACA7c86DCB077c1;
 
     uint256 public totalClaimed;
     mapping(address => uint256) public reserveClaims;
