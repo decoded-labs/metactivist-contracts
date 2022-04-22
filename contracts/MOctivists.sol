@@ -10,14 +10,14 @@ contract METActivists is ERC721A, Ownable {
     bytes32 public rootReserve;
     uint256 public immutable ACTIVIST_PRICE = 0.05 ether;
     uint256 public immutable PUBLIC_PRICE = 0.07 ether;
-    uint256 public immutable PRESALE_DATE = 1650639600;
-    uint256 public immutable PUBLIC_DATE = 1650697200;
-    uint256 public immutable END_DATE = 1650718800;
+    uint256 public immutable PRESALE_DATE = 1650621600;
+    uint256 public immutable PUBLIC_DATE = 1650622800;
+    uint256 public immutable END_DATE = 1650624000;
     uint256 public immutable MAX_PER_WALLET = 5;
     uint256 public immutable MAX_AMOUNT = 789;
     uint256 public immutable SOFT_CAP = 700;
     address public immutable PROXY_REGISTRY =
-        0xa5409ec958C83C3f309868babACA7c86DCB077c1;
+        0x1E525EEAF261cA41b809884CBDE9DD9E1619573A;
 
     uint256 public totalClaimed;
     mapping(address => uint256) public reserveClaims;
@@ -98,7 +98,6 @@ contract METActivists is ERC721A, Ownable {
         require(msg.value == (_amount * ACTIVIST_PRICE), "Wrong amount.");
         require(getState() == 1, "Not my tempo");
         require(_amount + totalActivistMint[msg.sender] < MAX_PER_WALLET, "Exceeds max allowed");
-        require(_amount + totalMinted() <= MAX_AMOUNT, "Exceeds max amount");
         uint256 desired = totalMinted() + _amount;
         uint256 threshold = SOFT_CAP + totalClaimed;
         require(desired <= threshold, "Can't grab reserved assets");
@@ -108,7 +107,6 @@ contract METActivists is ERC721A, Ownable {
 
     function publicMint(uint256 _amount) external payable {
         require(_amount <= MAX_PER_WALLET, "Only 5 per tx");
-        require(_amount + totalMinted() <= MAX_AMOUNT, "Exceeds max amount");
         require(msg.value == (_amount * PUBLIC_PRICE), "Wrong amount");
         require(getState() == 2, "Not my tempo");
         _safeMint(msg.sender, _amount);
@@ -149,7 +147,6 @@ contract METActivists is ERC721A, Ownable {
     function totalMinted() public view returns (uint256) {
         return _totalMinted();
     }
-
 
     function _baseURI() internal view virtual override returns (string memory) {
         return baseURI_;

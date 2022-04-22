@@ -13,7 +13,6 @@ module.exports = {
       },
     },
   },
-
   networks: {
     mainnet: {
       url: process.env.MAINNET_URL || "",
@@ -25,16 +24,13 @@ module.exports = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    gasReporter: {
-      currency: "USD",
-      gasPrice: 50,
-      token: "ETH",
-      gasPriceApi:
-        "https://api.etherscan.io/api?module=proxy&action=eth_gasPrice",
-      coinmarketcap: "9c854297-1257-4678-8532-7b9f82aba3a4",
+    rinkeby: {
+      url: process.env.RINKEBY_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
   },
   etherscan: {
-    apiKey: process.env.POLYGON_ETHERSCAN_KEY,
+    apiKey: process.env.MAINNET_ETHERSCAN_KEY,
   },
 };
